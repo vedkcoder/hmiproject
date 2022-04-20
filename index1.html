@@ -1,0 +1,551 @@
+
+
+<!DOCTYPE html>
+<html lang="en" >
+
+<head>
+
+  <meta charset="UTF-8">
+  
+<link rel="apple-touch-icon" type="image/png" href="https://cpwebassets.codepen.io/assets/favicon/apple-touch-icon-5ae1a0698dcc2402e9712f7d01ed509a57814f994c660df9f7a952f3060705ee.png" />
+<meta name="HMI" content="Music Player">
+
+<link rel="mask-icon" type="image/x-icon" href="https://cpwebassets.codepen.io/assets/favicon/logo-pin-8f3771b1072e3c38bd662872f6b673a722f4b3ca2421637d5596661b4e2132cc.svg" color="#111" />
+
+
+  <title>Music Player App</title>
+  
+  
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css'>
+  
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Kelly+Slab&display=swap");
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  font-family: "Kelly Slab", cursive;
+  background: #232427;
+}
+body .card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 270px;
+  height: 430px;
+  background: transparent;
+  backdrop-filter: blur(10px);
+  overflow: hidden;
+  border-radius: 15px;
+  box-shadow: inset 5px 5px 5px rgba(0, 0, 0, 0.2), inset -5px -5px 15px rgba(255, 255, 255, 0.1), 0px 0px 0px rgba(0, 0, 0, 0.3), 0px 0px 0px rgba(255, 255, 255, 0.1);
+}
+body .player {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 220px;
+  height: 380px;
+  overflow: hidden;
+  border-radius: 15px;
+}
+body .player .main {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  transition: all 0.5s ease-in-out;
+}
+body .player .main .thumbnail img {
+  width: 100%;
+}
+body .player .main .seekbar {
+  margin-top: -15px;
+}
+body .player .main .seekbar input[type=range] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 5px;
+  outline: none;
+  background: linear-gradient(to right, #f7ff00, #db36a4);
+  overflow: hidden;
+}
+body .player .main .seekbar input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 0px;
+  height: 0px;
+  box-shadow: -300px 0px 0px 300px #00acee;
+}
+body .player .main .details {
+  text-align: center;
+  padding: 20px 0;
+}
+body .player .main .details h2 {
+  font-size: 1em;
+  letter-spacing: 3px;
+  margin-bottom: 5px;
+  color: #4158D0;
+  background-image: linear-gradient(45deg, #4158D0 15%, #C850C0 75%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body .player .main .details p {
+  font-size: 0.9em;
+  color: #fff;
+}
+body .player .main .details p:hover {
+  text-decoration: underline;
+}
+body .player .main .controls {
+  display: flex;
+  justify-content: center;
+}
+body .player .main .controls .bground {
+  padding: 5px;
+  border-radius: 50%;
+  background-image: linear-gradient(45deg, #4158D0 0%, #C850C0 45%, #FFCC70 100%);
+}
+body .player .main .controls i.fa {
+  font-size: 0.8em;
+  padding-top: 4px;
+  background-color: #fff;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body .player .main .controls i.fa::before {
+  padding: 5px;
+}
+body .player .main .controls i.fas, body .player .main .controls i.far {
+  font-size: 0.7em;
+  color: #4158D0;
+  background-image: linear-gradient(45deg, #4158D0 15%, #C850C0 75%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body .player .main .controls > div {
+  margin: 0 7px;
+  cursor: pointer;
+}
+body .player .main .controls > div.play-pause-control i.fa-play {
+  display: none;
+}
+body .player .main .controls > div.play-pause-control.paused i.fa-play {
+  display: block;
+}
+body .player .main .controls > div.play-pause-control.paused i.fa-pause {
+  display: none;
+}
+body .player .player-list {
+  position: absolute;
+  width: 100%;
+  margin-top: -20px;
+  height: 380px;
+  overflow: scroll;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2;
+  transition: all 0.5s ease-in-out;
+}
+body .player .player-list .toggle-list {
+  top: 0;
+  text-align: center;
+  height: 20px;
+  line-height: 20px;
+  background-color: #21D4FD;
+  background-image: linear-gradient(45deg, #4158D0 0%, #C850C0 45%, #FFCC70 100%);
+}
+body .player .player-list .toggle-list i.fa {
+  color: #fff;
+  font-size: 1em;
+  font-weight: 600;
+}
+body .player .player-list .toggle-list i.fa-angle-down {
+  display: none;
+}
+body .player .player-list .toggle-list .toggle-list.active i.fa-angle-up {
+  display: block;
+}
+body .player .player-list .toggle-list .toggle-list.active i.fa-angle-down {
+  display: none;
+}
+body .player .player-list .list {
+  padding: 10px;
+}
+body .player .player-list .list .item {
+  display: flex;
+  padding: 8px 0;
+  border-bottom: 1px solid #444;
+  cursor: pointer;
+}
+body .player .player-list .list .item .thumbnail {
+  width: 40px;
+  height: 40px;
+  overflow: hidden;
+}
+body .player .player-list .list .item .thumbnail img {
+  width: 100%;
+  height: 100%;
+}
+body .player .player-list .list .item .details {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 5px 10px;
+}
+body .player .player-list .list .item .details h2 {
+  font-size: 1em;
+  color: #f7ff00;
+  background-color: #FBDA61;
+  background-image: linear-gradient(45deg, #FBDA61 0%, #FF5ACD 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+body .player .player-list .list .item .details p {
+  color: #fff;
+  font-size: 0.8em;
+}
+body .player .player-list::-webkit-scrollbar {
+  width: 0;
+  background: #222;
+}
+body .player .player-list::-webkit-scrollbar-thumb {
+  background: #00acee;
+}
+body .player.activeSongList .player-list {
+  margin-top: -330px;
+}
+body .player.activeSongList .main {
+  filter: blur(5px);
+}
+
+/*FullScreen Button*/
+button {
+  position: absolute;
+  bottom: 5%;
+  right: 5%;
+  color: #fff;
+  border: transparent;
+  border-radius: 15px;
+  font-size: 0.9rem;
+  padding: 0.5rem 0.9em;
+  background: linear-gradient(90deg, #03a9f4, #f441a5, #ffeb3b, #03a9f4);
+  background-size: 400%;
+  z-index: 1;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.5s;
+  z-index: 10;
+}
+button:hover {
+  animation: animate 8s linear infinite;
+}
+button:focus {
+  outline: none;
+}
+@keyframes animate {
+  0% {
+    background-position: 0;
+  }
+  100% {
+    background-position: 400%;
+  }
+}
+</style>
+
+  <script>
+  window.console = window.console || function(t) {};
+</script>
+
+  
+  
+  <script>
+  if (document.location.search.match(/type=embed/gi)) {
+    window.parent.postMessage("resize", "*");
+  }
+</script>
+
+
+</head>
+
+<body translate="no" >
+  <div class="card">
+  <div class="player">
+
+    <div class="main">
+      <audio><!--Upload mp3 on the https://jukehost.co.uk/--></audio>
+
+      <div class="thumbnail">
+        <img src="">
+      </div>
+
+      <div class="seekbar">
+        <input type="range">
+      </div>
+
+      <div class="details">
+        <h2></h2>
+        <p></p>
+      </div>
+
+      <div class="controls">
+
+        <div>
+          <i class="far fa-heart"></i>
+        </div>
+
+        <div class="prev-control bground">
+          <i class="fa fa-backward"></i>
+        </div>
+
+        <div class="play-pause-control paused bground">
+          <i class="fa fa-play"></i>
+          <i class="fa fa-pause"></i>
+        </div>
+
+        <div class="next-control bground">
+          <i class="fa fa-forward"></i>
+        </div>
+
+        <div class="repeat-control">
+          <i class="fas fa-redo-alt"></i>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!--Left/Right Song-->
+    <div class="player-list">
+
+      <div class="toggle-list">
+        <i class="fa fa-angle-up"></i>
+        <i class="fa fa-angle-down"></i>
+      </div>
+
+      <div class="list">
+
+        <div class="item">
+          <div class="thumbnail">
+            <img src="">
+          </div>
+          <div class="details">
+            <h2></h2>
+            <p></p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<button id="fullscr">Go Fullscreen</button>
+    <script src="https://cpwebassets.codepen.io/assets/common/stopExecutionOnTimeout-1b93190375e9ccc259df3a57c1abc0e64599724ae30d7ea4c6877eb615f89387.js"></script>
+
+  
+      <script id="rendered-js" >
+function _(query) {
+  return document.querySelector(query);
+}
+
+function _all(query) {
+  return document.querySelectorAll(query);
+}
+
+let songList = [
+
+{
+  thumbnail: "//encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTSzJxD-D0bAqtyF7us3W1dGZPRXhLhAgoDpA&usqp=CAU",
+  audio: "//154.82.111.116.sslip.io/dl2/LBgr9-l0gH72EarMnc9MQaKqqxfl1wNzdI2ZEa0aofjEZIALuu5irAKsSdgBHF2rTc4twm0y8V4Udd3847ZuJ90p63tkUmTOxOix_FGTT1m36rPII0E_lmA3dNNPP05uIHaYNGzmWXGxo25HwRZWTnam94EVd8x1ydatwwZa8AMQbekn7euw4sxTtTTmu6rRl0QyK9DAXSpkSGHTNQrkTjNFxtDczHBWrhU67vcxZCAcrOsLSd3E_UC-IBOV-xPf4NNpVFplnm0cIn8RXJJOOQBQyTc3hJSKKBhdxT2Zoij-jvHkD3uR1iRb5eRl8WxtviA-yPxIatKNTazEDNmPjVDtDDCbj0MReLTZU6KcAFilIf-4z-WSgli7Ilsrc6l1pbhIYMr4bsgozvk2qhTLsllPNHDnsbAi8Us8G9OLtl25zEqutVoqUY5_sgIuQ9NH2pO6htUajjBLZ4DuF1HsJFu-503GfYQRZ5n6nOH5ipKoJXgqqFrX640rVYeyUlx-kUWEttgLO1wIEl1gewgJmZvEvgnApB0HartoNuB63t3BoWM9QQ3p4gvh8hfYETF1z00vTsi842dnY0EpbAugq7h6A4JSNJyWP5cavQAAdrp88xdGZOrePzjl5IORIwPtXZ33JicSUcauDxiY0GU02bxI4gHrLg6jcLtfYfat11JC5BIvW0Q0qDtSQiRxRpJ43ioeYYCa9nlrSTOAZI89W4MzFxXHBrnRjnZQcucx2ysaqz7-wcVWwwfSlPwMNkMThwdiXK26UZtF7PMF-Sb6t_kG4QO8uNKBpnKp9FIh4eJCKL9Z5qwbBY-DLgnygCjhMUU5YmZUkFt75YPdumS7TmMvNDJ86hHa4pJ6oIzYNQUi5ShvOr_xVKfqJDwchk908Cq4ItxyKcgx6O7yI_9kRTPtjvllljqspcKKDu88oeGfRrsdfJzpHNpEyFGTAomgR60NZaHG7vQAnfGAb-tMrF6LsJE3miSNrP_Du83Qgb7lYPGIamZnumMa3PyIOv40tDhFhQ7JktTlQwxwbWakVxj-VB1cTRnNr6s_oWTpPysEzaLbRTBhYfFW8Q-MmqDhzcVxZPOhAJMgZ-OoxvFfusMJ_qBsACFuYxZFkFbUm9lRvz0Kzfv78MoZQT8ERU3jb_vC5I8_GDxwtMjbitOYY13BFPMAS1jZAlLxXcAtopYMsx_ZyLfD_A0aAA8_vzH3zyB_hTZ4UIg9PoKd3NmGZePVYvfZF2_S6_dKt0SYZ4UWGGPmPsLFe9ibxWf_IEHIuJRAbbbRqHF3NjxRFkwo7D4MQLvr53Ka0gcklAHPaej0McQJQZhaSiC_ORZ6oWrd3b8fg2TYvNGa3iwn9pG3AA/YDwWpoDZ",
+  songname: "Rockstar",
+  artistname: "Post Malone" },
+
+
+{
+  thumbnail: "//i.pinimg.com/originals/1d/0f/f5/1d0ff5eac26a274bb19a9dd9b5a520b7.jpg",
+  audio: "//154.82.111.112.sslip.io/dl2/vjzvGvUTgO7IJv-QOQF56TrkOYBxxbf2938cJX5HS4LFNzwaHNfojXtw_Ez_6mupLg4W3JIXL1i0ExQ3MvY6hy6oPFzT2_5I9kFJwm4-Y5k3asB9ZcuDPJOjqt6td5WfRKHtH7hPUaNsCkMMpnwhI8PtAM09Ecg7ZeIIcbW7DG3IOW_gd1HqQ26gFmEwsveDIxZPxRjCx4zzGAzx3Y2SQCgkC4pDFt4Zau2pGdcVXAj8-vRQW0mjRsN2ACUwgSyUeO_9Hxi0vsGdiXXYQtxd8VKF1nDbyWeJTA9WQqMlO67XZECGlEeLbjYA-XSyxAFA_R5TFVFOiSTPkv_HvsyJT0DWzlV_lq8EJ4MXCuEiDp-3ACtzYoXZFfvxJXvbnztsfKuklMD91qJoDrYWmnDfY3Z0hybXqbfbQEkEvGn4J1TJ6OXZKqrkl9JN7Oyou6iqtaaqH5ph0WDMO4aS9JR4JqsBnqTqbCvoh8UBFPbawqiIzKxtKqxkLons3XjFnDKD4pwjudt07aZiKbSWYTg9ZdBjOrm9mFkvTc7R_NCSzpOCFGOKEjxmEubvonArxpTTux-5c9fduA68MNY5oY0q-AGtkVTr3S8wDTNFKEjUc7jviPS4EiO-uWoI07Z-NK6GvOApVMRcXaTZPH8AkwpbcbzmYej_MQVcrGgj22-uDSmioAH9EbbACqUhXDzXxg3HtvhFq5L48ACTGRWopSwst8_kxgGez1c4i37zkTtpUpOBzs5IIHsbaaXJ6Ah5FrUbkwvAYA5-kz701Ri6S9Torj3M30iJ13lGDsXxoYcDjM3OtWmmRoWaJt5mh9AFbKy4X_DfPkpPdjZZOsuGS6jun-tmv0FJVmsNZWTpWf2Euzk22esASpStjZDVRVu5VV-7INrIxKkvLSf9yXnDa6mDIbFMB1-Mpo3pY7YzN7O0TYIk8dwpVjZDrjO-CT8QTEydtHWOy82Vfhl9c2e4JSY1OkI2bADHLK2UZBDQza2MLPwwhamBYpPpLLZOOvLX5OLXqbPRoc3vYQ94kz_y23PY9hDYMMXlQMs4cYgFVreos6u7nbHJzSOMyq95NOfSrQgJicNNKJL0fJLxoYhjvWNVfCXAkhsY2gKdg5IQLPswhbUfyF5sJw5p43O15vnwNcwK5f59XkSY2WQw-wPqfDui9a9Wt8aCY0U5hu0afU5FMGA-MvKRAJ-do5WhZLlHN9IDj8f4w7mUpLjMcA7qfn3qSmTXSUe7ZMSwJPaLYdfiZbGJDSDJjBB1n7SxfPIGVT0K3rwl89inVoWgljVcJduLIHdP1MbT4qYKR97tCFZpizdNxbaJh5HLZXTxjkEmV30Hx8BOTQQF-zK7_gGKUMQQ1OwvwKhlWNhuvncu-qZKIQ/jkyfw_E7",
+  songname: "Blah Blah Blah",
+  artistname: "Armin Van Buuren" },
+
+
+{
+  thumbnail: "//i.scdn.co/image/ab67616d0000b273ab9d1ae18b640b7b0ce390d4",
+  audio: "//154.82.111.112.sslip.io/dl2/VFN432Yqq1btGHee0wGwam2L8myNTjy32eQaInF2jAoLgPAQu_0J4FxtzHk5kIhwOJ1Y6gTvQeRw3mdY8PzD9_NFqTKSrGpAZdygXKS1KkAxk8Trpd0XeTYyCmUcL3CsxdU93y61iH_t27tNqBb2JPfnDBIcrVuvCRNXQnzSSClIuWeuCJHRzIPzvieMh-thtmTcyD-cis86OiOBtnermqd1FeY2rxtTD9suIxTnOu6AHzg7nDgWjZos3VQgQfDS6UwhT4JS6yPfEjIqoo19K2rp0gSDuISZXe-qgeJZZnlaQ0bEIwleX8AhQUh6JnVWJn5Dy72iH8rmztnlS48hVq9spjDhO_KzYDcPGcIpa6RZRIM8b2J60Ljhx2LpytVs5jZDQdJhAMBWSIDiMCsKIQfhwqzBFAJH_sN22EahFssoTyzG-yQDv1xkiUFr94X1PeCpwA6P8pVmW5bCh3ENvKlAZS6SRTUg1FINFBJq4bjh3ykKNLVwxRXfKjT4Rgvwua4hc6kw8cQf7pfMWU2KSXhBgPZW7mLzmTyQdAlx5sm9yobGlKKuchtkVdAiz-2hAcF3Kadd9JEDwnVmiuSIWoIv5vel3p2dVhj_KaN62QwtChnA82d2Nt5xMz9cT7XsiOvr-tqNWdTkcRaNnptImt27-cxkZL9jyAZpQ48qMtNG7WHGFAqcuaX3D340rwinxu6drfKOq_vsg74m1cQrktBYKG4yBnJh3LQHTKNvo3Y0B920XCay8-MS3_awtN8nytTCGPDPyIvt9FKBVoKfFtQJ-ySKaaPTh979AlGvGpPzFASpPWuRfYtmBP2pXykM8t4AkX4lZCSI02TRr79phVaVIY_x2-AeWAdMPzaqWd6zWaezMk3g4XTkBMX6Sf2fEk2MBtd0aIhFZEq1uZlnqg5nbwROmaEEvMRUCRv79DUwWCTUES9j30ZUC18ya__lBN-5lt09MYIzWEccD7n62R9wYDXS9K39BY8Nfmr8rr7VTJX9TsS_3Sw2d6SEfADZdkiGJCByauTE0BnnQ1hj6L4BF0Hs9iY3HyfoaJb5tlGKQwg2T2JuwvfBNKwk6ucWOXvOyiL8yH6G57P6ZFdKQDSm-f_gDxPqc7sTbbFk37w2VpgQYEODMflMkVN26jIhc9qD-CBSVp-Bpbc7fiN9Oxan87HqL5PtIQlUzKJZmbb5IQu3ITexaQh9X_z9RrLTuBN6h4jVxS-V_NJITsd8Wo8Z163Xy3xGTSRgPI0yu1I9UnkK1Dw5ffhv20YeBm9rMxDBxdvBIzK1kcJWuyETewVcZK0Sn4CsuxXS0hO0iJnBGB1tBZbZjTg/NZ_Dxtc7",
+  songname: "Heat Waves",
+  artistname: "Glass Animals" },
+
+
+{
+  thumbnail: "//images.hdqwalls.com/wallpapers/the-weeknd-blinding-lights-sy.jpg",
+  audio: "//154.82.111.42.sslip.io/dl2/aFna2yK_LAeUhATbPXUq_xGJZWoW7YKnEl7AEO5sAKQ2Fwvi8_AYlf09brCp5JdXZDOEdpB5lgpFs0v3ifKei2HL9nJxQ1ODN7o4IktpQOHfqk3AZcXdjeqpxtMezvPNHL90iXZkzaTQqEaCqj3lR6iS6hCoLHSXY3kmKvK1cb5-d9Iet6GwryULQDMslLutdTd712JoJtyF4KRTzzPrLKeMlnkJNOsRytXuG2moJTue_r6CrQTKMPf5KbjmLEfbnjM6HWL4DHh2yO4FoA68a7zhGkoD6vlDvg8A4OvtIOApGCYJCSGzXY-k3_9i6GFGz6S73fm4Dl6Aj8KZHztk7p5pM-Vpzphl820SZGKR5vG2w5mB-uoffB3eIZ7tCa9XoDlPwv9iSXIxXFtCn2kf8iYDHAMl4Yr-QKFO8TFY39TdygeJe-9MLQFYXOlTaXFhNLL40Dz12gFTE-yl9Jeli6qGHZ67EW6fTqS3XGLIwgAZkRAi0N18reGdR3gLBad0GtsMwemvhr7bhPeAM87MX2lb8Mbc1206ACxF9de2Mw5aA6hfY69XwqxJ0dlYSDWuZr1pucdYI3vIHenuh-MF8D5otvV3RcTb7a5wbBHY567IVtSlaIWIn-G5XGGx45Kujqlzv1kfa8go4naMWzBu_nUEQW8K22Leyge9szXN_PbhJjUIedPzAYBjKz2_bf-b5lM9fivatUpk4403g216yxobol0GMb6Wh_ja90j6AWvDaeX9MARVgg73SkTF_nfQlv0KP6D1LfbXOb7Bf8wx8WiaQ-JjrmQ_Mjv5qDsNsWhDPStQdtaHk1Truzx6ypVJyE_vc_nVGmMoWIQa2kd7FQEt0sQWFWoTK8eIebazyn2DT1UoI5cw0w6Zd1GfMemE86EMhAx4X_gKB2Wyb-2SLVS7e2f5l2ORQF-sWjPHyw_6b7Rm2ArAXpC7g9b-ETPcEGyNxuO19FXb6-S4D6OZ68DouH8EViLbpzZxCoYom6JcGLEUb9pbACtTHJbucvTxjLMJ968R8qXENXrcR6aHD7FYL4bjjhY2hrFp59giIFNrL2l0T_2QFHe9GCd855dNig-s6HYXX6MnNB1GguhdR8JIWJWE_a_k4nOp3JKf2WU6-qBSAepsuaayktCxrTMAXRDzYsvaGwmjwWaVrgtJZ1ZZZTpg8T6IWwgCepo6mkPVq-wnMip0XZNcImR5UL-ZTr6LnOAo3yJYCVTXmIJrYcaQIzzxdh3c4OmE-9t1JwD3erVL3t5WELxPmXJG7T6IJg9jDy4meCZOfukHvNmoMOfUtR0CqbHMBZ-C4WI8cToE_4z8pE4lEvjdIcGF1wpVaMCNIK6_HjDG66WEBmyOBhxYuPLuLs-C4QIro1J1H_sT8ak/al_8RaEz",
+  songname: "Blinding Lights",
+  artistname: "The Weeknd" },
+
+
+{
+  thumbnail: "//cdn.entries.clios.com/entry_attachments/image/38/19755/starboy.jpg?HD0SIPMbGNRACAI6YIHa0QCEgbjp4JUS",
+  audio: "//154.82.111.113.sslip.io/dl2/SOqW0U5EqdG7UrukjrlcVQ7g5Uz64nc2Ne0bmyAQMLglE0UqkjIb6G7cCMcid9CasE1H1mevxfrkeC5b6W-Lu9CsiOM5lcUq2udgg8Jzf7L9IBACxdwVUjy2bA87fmvuA3XLXmu8-nJO55u4a88Gn8lifSkf473e9Ret-5-5zRchIckwc_xMMyxJzze4KNucwla2xBEMdjmHiVgvPWjpzcVcVccYV_k1S54VjwPIi995C69Yjo_L_2Goth3UuaQO6pDlrseGNGTW1kPdZ0qrrMbBo0wUVlSe5SrkE5wNXoAPVYVEt-DOl1kfpHsCzsW-SEXwIzCfvvXKqBt_b0T-8lLOLVuqvKqnIGE35jk5_MIe6gpz9hkEbHBpRXQfJckNFLB_8DczQIaZXeTGZ7AQUAwwcvTtdETUeSAxXc4eQGXnFWhK1LWfn0LgRa0QK0bYvfbMZaoWBalnoX4kQl7NDpK-uWLTekrQilFlmf7C8v4aosa9vg7wseF8HpBo5J62Gz0S1DlVtl8mIuOKNr_a5MV_a8YUfxytA3mwezREwnoJd11L5vrYgDr46LxcGp8MOJJHxvZP2C1kK3tsznbKQniodDU4ZteB13MwuISHFbktMKmYtMyTeDKHaMLeSZvBzbeobHU9Esft_zs3gNJEHwy1CRmTOnMsuG5aBvR9l4LNoKseuts8kP2hzST78PCW1aQsw4Ywg9zFzXIYiJ7h6X8PRaC-Pi45BS8b6jNEkUMM19Z7ZyeCIcOYyu-foPgaUsjFV9BEgm-aPWCF6L94hmFyw-VI6cJXf6AEsfPjnq_qL0BVAPRUQ8mR__X7ucgJQHkYfxvF9Ycn_NRdVy9j1Ipb2lAORXYXzFQwb6iFcCPVQRAWYScSUC9O88gylb4yVpipfov40vo0PfYofxr3GNZidNd54WUJkho2Rx1JGyuwbfTKSCpgFBOcIVIYtof2FM7tQ86PkATdbOeUWOijGyEXxgEyKNzCsnTdvQQD1-sQiOCV43mzFQMEj8-DPWgcgfN2gHNYNd2a2mLSi1WJWCixRFg3804yYBdWBa5vN8Gd8BsqKceg2qTooiokGabQzA2a_IH13xFlD0nwFW5sBZMYT9MhJEQhYuMQpDS8-u4TF62WUn7pHQbWjOEY9SRNYdXsG7ThK0BLWV0fvNaT0mOoZ7IqMTOFO7UntfMW13FkYobjpcEwNYARmy8qaP1B_OVSQFGMUPMr9b0iZY1z61UN0MogC8E90OXvZ49CM1nZ-65guwaTOB_U_CDB6R8RmjC0mhojTZYttjvr9uRwFbumq-stPqi3keiNxI4mwA2EoDSf_PKisN0kMOS1ASLC9T_x_JHHQgf_02Wqz4E/dG6RdkFa",
+  songname: "Starboy",
+  artistname: "The Weeknd" },
+
+
+
+{
+  thumbnail: "//a10.gaanacdn.com/images/albums/25/3684825/crop_480x480_3684825.jpg",
+  audio: "//154.82.111.113.sslip.io/dl2/IB9WW0xvJtar-IYGfdipEocfFZOpjtscTmMywvYj3geIA5brV9pvYVJcjG_qBSncAbDg5jGAwTkCQrjjiS4apFRkBiE6Gkskj5Sq3r7-72fISHYFaFGOgpqynjmSE6UMG-lByHchTrkcXWXArqZ-Wnz5e2JYQHcphxkXE4FG27o-jSMxf5flTN-pNTxqBliUdNzJzTldmFW4e9GwSHZckqvJp_ro3-jv7VmXA3thebfcTatDvCnkN9LevqZkWk8Qi400bCGURA_W8u139ZTitogKqf8-wcpcadlMn85heRv93EQ6sCtVd_PwrPvrxv80TJEQnSJPW4wscKczFwms-xM60BA4R4AOBJbwMWxBZwjfQmo68Zx-joxnTjS8OZFVTt1wKrtpgKHnXHQW9Z0-HM5E6tkrWT1M-rD-9lD5P4nXl3FMA8y8TzWdWTH1m6Bq8yPbdze0h03NSOJlZwe3FxhyfCA2dUUWQ4py12p4J0i0TuT5H7Xa-6sFugx9IKhH17xQdCYsD5D99agduVRjFakmfL-vZP5hnHoWpPZYjneJaln17bEfTJvlsb7HfcOxgf3Urz7Tnk_aiwunknrmUIGlbAnV77yauMZ4T6yV128OIIZA1sfzFXbgotFWgedSTKQTuy_92li_dmpjgV3wJjqGSW5JCmQ28TzRN1qGbc6mNZY-EKWqtMlr6BwpovMXmgZ2wsf2uidyN4pMV9d7sus96ZD0_EO999hjwGZhQ9nZhNwrPNJWfe3HeWevdj-pRUwPsOcv4tMi4JdabideyP-y1PcfU7nhd6b1KK9ER1bjuvu-jaPRIIIOdlCcIioswpkVzbSVbTxOTpwlFiLDYu5u6gEIYyxTRWX7OoaCkFwuD6zg3Gt6jSJcse2ee-WYhusZFePz2JFs30dcCrh-MFE61FXl2wInPNF3oESW0y4gYAbDkgJakSzKeXN5U3oGLHbaFnK6n19m2v0w9P9z9IsGDYSqw4sYXUOzOjYnRJ7ds_VaJeGt02oeapMbOskaLmSPp4mn6x4RGwnSNNGF8bNN_b6KbUPDSYUBIkz3R_Ci07LcdCXJ1d3dXvXWO5qkt-nywPcvl1SSnxNp77vddtKI5eA0U3XXC0sylmgkFwBdDBFVX1y_jlhEgfgfKTmaxoEnSMyC1DhWTWTrQ3wS1DGSbpkjlqCYzPDIx7FD0zGgJXXzpiuMnFMRxjJpc_laUI0xDQ3Ui85bTlBk9x84tcn8d4QpebdWQStdxuxtGbZmIf7APQnyjrdtCJevdTeljs-TlguQg1W-a5ldHk2bxmpBeHZHp9ACAwYUYTmrCNpOljzFBo7cBC0Cs6Gp4Iq_jQ/DnZo1XmW",
+  songname: "Lambo Riddim",
+  artistname: "Carvillo" },
+
+
+{
+  thumbnail: "//i.scdn.co/image/ab67616d00001e02f1bff89049561177b7cccebb",
+  audio: "//154.82.111.113.sslip.io/dl2/lr0uVC2N4Js74ndjfFscIF8efRq7ofkhLL7R7o4j3HFyzq5OWvqwGB25vqkl8US7NXUjxOI5Dq-QPfVtqGqRqO6KL6aYQM0vesO4tjrrJJrZ-vkUbAmHk5Lmdfc82twHSja0EyC6tA77NXu4byPCM1er2CU4UQaUoA5u664BwAv2NPnkKO9KVbjbTuDP8gn5OUennhPbqUIZmZBOkbz_4ikudjlrqpWaJOKycWJqvr0oLImV3UgTnavrbP23miqZvf0oeDGp58Ikw4eErhlT1AGRx6JSMEXRg7hx4-YXPS_dJ3fawCGvaNAdhRS-hOwzb9SGa2R6cQN3yh_yKUy6cYi4a--RJx-raC7sCWCEF5vhxEnY-9iSi_6IIqZU951g4ojDlo-mQfkJ2W0WuwptOb5VGV8msRmX4BupB2k-VRw-762fKmHQ50z9sZgSDzeXVplX8j6sgPAqQsEMtpprb40Mweem8W4y5Q6YHpM0mv9sNKBVwObp0APC4SR7wNZ8qIVlE0F5fxJzo4Bg4v3Lo5k61imUGh6XSdq9ny9BSq9rLx94C57pLxQ8t3DO-k5tXgMo-l4iv0P4kRFJSFtYy95ftGIx6mOHaa2X4EkYRJYuROqr4pSFMv5fH75JY_M04zdCZM08qM_gbi_EHykGRi_jM9LFoy8Tt3b7kZNqRj2jvGX83dMD4Vmy1jAzvjyyKqnxT6s7IIsehut9ylLszjQDdf-LFFQsbLTvbciu9W8y56nONL4fG__z37C42URBN1fmsAiOT7FhTWS6eILPxVt9DAhmGvniw_J_LEsuyGUVBKKYI-T4SdtWe5Ze4i18XPfuup7VQbCYEbtgwPebaNnmWTyAOha9qDRKYE7YtCib8Mg6kl6gQYIsUZroyu5gOf7LnTkjyB8OK8PhSaNJtKT9-LwUND0uCXb999oDB0-HGC2WKY9AfgAfcWAqhcS-AzkK_MxlRxc4TrooOg1Yt4YvWHZ7r8JXrxhYdxC5rXuzVBqcSrHLP7FkvHwV4fH-6TS7ktVTkvtejQRDwBiSvJzWAhVKBfTonkuEM1B52p_EYJ3QnVhvhBvnUnUcztcOATEdgluSCPDSfHv7RNILZeJ5yK7Qf95xQvSNFQ5_cz8uY7tZ8s1XxcjEFU3VqUBSSnYm3UY4XK5n6JSOoluLRYZH7gqJIQhWLwmZR5mkElBTe6Yxp3csNoaUG6hzAhEOT_K4Z-BsUzAr6Wd49ADAf4DlEYTta9qIFu86YIu2fthqXTG_O50l_8ssW_vPaMHbQ1ghZ_iyhKp7H7phj7y2EbSkhCJiOylTVgKexLYJi_UZlDmdMms3_JIYQYi8yNgWCZPOVKDr/vx25SBIn",
+  songname: "Someone to You",
+  artistname: "BANNERS" },
+
+
+{
+  thumbnail: "//images1.livehindustan.com/uploadimage/library/2018/06/10/16_9/16_9_1/_1528608417.jpg",
+  audio: "//154.82.111.112.sslip.io/dl2/Uhh0taHF94M_3tB-IxeSimEFi2USAl76CFnBhGLpFz11K-O_1huxQH3j8oVdTzy56kfA_BXWj1Yh_THyUjNskKEcAnwIyNuDs8g6-h0ziu8mCpEGCr-saiTJg_tkw1AZb3C8d3QFd6Dl2YPychmUXL8b8UNlV0GIQQlE-PjI5fl1Icf4eY6ZJDN84K6wNo7saKc-Pdbz5IU6TllfyoL9yRhj-9hkibARBB8CGnbkmKNuueP7124cgbY8qnPTgzcsMuccKADbPHDLB_ozYLm1fxcjk64m9jUok-UaJSR28WbJZ4VFSh52fHFAOssFuJ7A_1ysHKzf5l_LcwtQqLqqsriu6QHwRB9E8mye56Uv2ZLj3Akv5CCKN5hhsjyGJtq_WjmKMk_HmPPGzxN32y87pIj2J-CpFFoWnHNvZSkeViaC9QOvGpxl1NPrvsv8guhMAKHAIOPD2A3M6a4OEvVztpgWtDTSIkzS1jiZKJsKMoIE3d-F44NHoGvhO8zHG0LOcaj4IVElxHE4dE4x1s2zEbPZx5jAe9RNX284NBJzDifM3KIYLajG3ahbNVZluLgby2mme0AN_fvLUPskv_aqmnHvBSnpphVgdrB0pavdZyXpdDKpVhipEhp-o3HjgnERhKllxCUTRkUMo-T3kfLerR81OSH_QcQsgIe3dF_vTK5C8XVO_C9k6Sc39l1geQmETVMYz3hHlN58Bkp_-u893Poz_itGzZMaTYSka0I_jqycAHUWA-o5kOJyWsSJiEeEf6-oNT_qUySdNf0A5MWaiteVXy2AfFgV6dicRTJjzQmgWbphLaAheFmoKjhrwXKiDuW749u_exPkml1p9BK9tr1eM6iyLpYmollJoVLMevPP-FlPM9o6N-Q26ZMOCiYQ-EHgY11cp4rF3Hba3CwpPHAajf_i9AbIn63MPmivxrlv-tMH50wv7306zkGc_SRC0xsi-Ei83vWTnwzHfp1U7YOaYGXcTRUhM637eYGi0XZU-HlckXNrCP5mQhDVyxc0y5bHVHNDp4qSMvwNWR7TvSNHMq9tt9UBZpuEyC-IVnGsgiwPhl3Io1m0biaOq4IQHGsCOU3YzqLZj7BO2nTi87aP8_4MPMFeLDp1LPyJ8LoRNKa8Y8OM0YrWs-IVIbp_EQhnrVu3UFf5jfYZERjhx-NVcCbx3LYI6qS09FJ4AEZOI6k6YBl7Q3slZePOUEhk-6tSGBFOho4Trwn6sqmaxOevWEzV69JA5sneIJeI9fgaHqeRuj7xud2SJ3AzvpLbNCCURERp-lJhgq_vXfcj8ZuUKDcGH4dnGImkY-amCX-e2igHGJMIFIDNVyFy4mHBM6UYF_pvVGcT8UjOVqaxxcfE4jTO/m-WR4buv",
+  songname: "Mahabharat",
+  artistname: "Unknown" }
+];
+
+
+
+
+let currentSongIndex = 0;
+
+let player = _(".player"),
+toggleSongList = _(".player .toggle-list");
+
+let main = {
+  audio: _(".player .main audio"),
+  thumbnail: _(".player .main img"),
+  seekbar: _(".player .main input"),
+  songname: _(".player .main .details h2"),
+  artistname: _(".player .main .details p"),
+  prevControl: _(".player .main .controls .prev-control"),
+  playPauseControl: _(".player .main .controls .play-pause-control"),
+  nextControl: _(".player .main .controls .next-control") };
+
+
+toggleSongList.addEventListener("click", function () {
+  toggleSongList.classList.toggle("active");
+  player.classList.toggle("activeSongList");
+});
+
+_(".player .player-list .list").innerHTML = songList.map(function (song, songIndex) {
+  return `
+		<div class="item" songIndex="${songIndex}">
+			<div class="thumbnail">
+				<img src="https:${song.thumbnail}">
+			</div>
+			<div class="details">
+				<h2>${song.songname}</h2>
+				<p>${song.artistname}</p>
+			</div>
+		</div>
+	`;
+}).join("");
+
+let songListItems = _all(".player .player-list .list .item");
+for (let i = 0; i < songListItems.length; i++) {
+  songListItems[i].addEventListener("click", function () {
+    currentSongIndex = parseInt(songListItems[i].getAttribute("songIndex"));
+    loadSong(currentSongIndex);
+    player.classList.remove("activeSongList");
+  });
+}
+
+function loadSong(songIndex) {
+  let song = songList[songIndex];
+  main.thumbnail.setAttribute("src", "https:" + song.thumbnail);
+
+  document.body.style.background = `linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url("https:${song.thumbnail}") center no-repeat`;
+  document.body.style.backgroundSize = "cover";
+
+  main.songname.innerText = song.songname;
+  main.artistname.innerText = song.artistname;
+  main.audio.setAttribute("src", "https:" + song.audio);
+  main.seekbar.setAttribute("value", 0);
+  main.seekbar.setAttribute("min", 0);
+  main.seekbar.setAttribute("max", 0);
+  main.audio.addEventListener("canplay", function () {
+    main.audio.play();
+
+    if (!main.audio.paused) {
+      main.playPauseControl.classList.remove("paused");
+
+    }
+    main.seekbar.setAttribute("max", parseInt(main.audio.duration));
+    main.audio.onended = function () {
+      main.nextControl.click();
+    };
+  });
+}
+setInterval(function () {
+  main.seekbar.value = parseInt(main.audio.currentTime);
+}, 1000);
+
+main.prevControl.addEventListener("click", function () {
+  currentSongIndex--;
+  if (currentSongIndex < 0) {
+    currentSongIndex = songList.length + currentSongIndex;
+  }
+  loadSong(currentSongIndex);
+});
+
+main.nextControl.addEventListener("click", function () {
+  currentSongIndex = (currentSongIndex + 1) % songList.length;
+  loadSong(currentSongIndex);
+});
+
+main.playPauseControl.addEventListener("click", function () {
+  if (main.audio.paused) {
+    main.playPauseControl.classList.remove("paused");
+    main.audio.play();
+  } else {
+    main.playPauseControl.classList.add("paused");
+    main.audio.pause();
+  }
+});
+
+main.seekbar.addEventListener("change", function () {
+  main.audio.currentTime = main.seekbar.value;
+});
+
+_(".player .main .controls .repeat-control").addEventListener("click", function () {
+  loadSong(currentSongIndex);
+});
+
+loadSong(currentSongIndex);
+
+/*FullScreen Mode*/
+let fullscreen;
+let fsEnter = document.getElementById('fullscr');
+fsEnter.addEventListener('click', function (e) {
+  e.preventDefault();
+  if (!fullscreen) {
+    fullscreen = true;
+    document.documentElement.requestFullscreen();
+    fsEnter.innerHTML = "Exit Fullscreen";
+  } else
+  {
+    fullscreen = false;
+    document.exitFullscreen();
+    fsEnter.innerHTML = "Go Fullscreen";
+  }
+});
+//# sourceURL=pen.js
+    </script>
+
+  
+
+</body>
+
+</html>
+ 
